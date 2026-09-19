@@ -122,6 +122,18 @@ def init_db():
             cur.execute("ALTER TABLE utenti ADD COLUMN IF NOT EXISTS nickname VARCHAR(255);")
             cur.execute("UPDATE utenti SET nickname = nome WHERE nickname IS NULL;")
 
+            # Atelier: personalizzazioni del lettore (Ex Libris + Segnalibro
+            # attivo). I cataloghi delle opzioni (simboli, colori, font,
+            # segnalibri e le loro condizioni di sblocco) vivono SOLO lato
+            # frontend, esattamente come i Traguardi del Pantheon: qui si
+            # salvano solo quattro stringhe libere per utente, mai validate
+            # contro un elenco fisso, così il catalogo client-side può
+            # crescere senza mai richiedere un deploy qui.
+            cur.execute("ALTER TABLE utenti ADD COLUMN IF NOT EXISTS exlibris_simbolo VARCHAR(32);")
+            cur.execute("ALTER TABLE utenti ADD COLUMN IF NOT EXISTS exlibris_font VARCHAR(32);")
+            cur.execute("ALTER TABLE utenti ADD COLUMN IF NOT EXISTS exlibris_stemma VARCHAR(32);")
+            cur.execute("ALTER TABLE utenti ADD COLUMN IF NOT EXISTS segnalibro_attivo VARCHAR(32);")
+
             # Libreria personale: un solo stato per libro per utente, come
             # nel frontend (aeterna_libreria). book_id è testo libero perché
             # può venire sia dal catalogo curato di Lapides Miliarii (es.
@@ -510,7 +522,10 @@ def registra():
 
     session["uid"] = uid
     session.permanent = True
-    return jsonify({"ok": True, "nome": nome, "nickname": nickname, "email": email, "obiettivo_annuale": 12})
+    return jsonify({
+        "ok": True, "nome": nome, "nickname": nickname, "email": email, "obiettivo_annuale": 12,
+        "exlibris_simbolo": None, "exlibris_font": None, "exlibris_stemma": None, "segnalibro_attivo": None,
+    })
 
 @app.route("/api/auth/login", methods=["POST"])
 def login():
@@ -525,6 +540,8 @@ def login():
     return jsonify({
         "ok": True, "nome": u["nome"], "nickname": u["nickname"] or u["nome"], "email": u["email"],
         "obiettivo_annuale": u["obiettivo_annuale"],
+        "exlibris_simbolo": u["exlibris_simbolo"], "exlibris_font": u["exlibris_font"],
+        "exlibris_stemma": u["exlibris_stemma"], "segnalibro_attivo": u["segnalibro_attivo"],
     })
 
 @app.route("/api/auth/logout", methods=["POST"])
@@ -543,6 +560,8 @@ def me():
         "nickname": u["nickname"] or u["nome"],
         "email": u["email"],
         "obiettivo_annuale": u["obiettivo_annuale"],
+        "exlibris_simbolo": u["exlibris_simbolo"], "exlibris_font": u["exlibris_font"],
+        "exlibris_stemma": u["exlibris_stemma"], "segnalibro_attivo": u["segnalibro_attivo"],
     })
 
 @app.route("/api/auth/password", methods=["POST"])
@@ -590,6 +609,41 @@ def modifica_profilo():
     db.execute("UPDATE utenti SET nome=%s, nickname=%s WHERE id=%s", (nome, nickname, u["id"]))
     db.commit()
     return jsonify({"ok": True, "nome": nome, "nickname": nickname})
+
+@app.route("/api/auth/atelier", methods=["PUT"])
+@login_richiesto
+def aggiorna_atelier():
+    """Salva le scelte di personalizzazione dell'Atelier (Ex Libris e
+    Segnalibro attivo, più le stazioni future). Il catalogo delle opzioni
+    e le loro condizioni di sblocco vivono solo lato frontend (come i
+    Traguardi del Pantheon): qui accettiamo qualunque id di lunghezza
+    ragionevole senza validarlo contro un elenco fisso, così il catalogo
+    client-side può crescere senza mai richiedere un deploy qui."""
+    u = utente_corrente()
+    d = request.get_json() or {}
+
+    def _pulisci(campo):
+        v = d.get(campo)
+        if v is None:
+            return None
+        v = str(v).strip()
+        return v[:32] if v else None
+
+    valori = {
+        "exlibris_simbolo": _pulisci("exlibris_simbolo"),
+        "exlibris_font": _pulisci("exlibris_font"),
+        "exlibris_stemma": _pulisci("exlibris_stemma"),
+        "segnalibro_attivo": _pulisci("segnalibro_attivo"),
+    }
+    db = get_db()
+    db.execute(
+        "UPDATE utenti SET exlibris_simbolo=%s, exlibris_font=%s, exlibris_stemma=%s, "
+        "segnalibro_attivo=%s WHERE id=%s",
+        (valori["exlibris_simbolo"], valori["exlibris_font"],
+         valori["exlibris_stemma"], valori["segnalibro_attivo"], u["id"])
+    )
+    db.commit()
+    return jsonify({"ok": True, **valori})
 
 @app.route("/api/auth/password-dimenticata", methods=["POST"])
 def password_dimenticata():
