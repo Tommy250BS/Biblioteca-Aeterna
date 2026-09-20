@@ -760,6 +760,143 @@ body.splash-lock{overflow:hidden}
 .medal-progress-mini{width:100%;max-width:110px;height:3px;background:rgba(255,255,255,.12);margin-top:8px;position:relative}
 .medal-progress-mini i{position:absolute;left:0;top:0;bottom:0;background:var(--gold);transition:width .5s cubic-bezier(.16,1,.3,1)}
 @media(max-width:640px){.vetrina-case{padding:32px 20px 24px}}
+
+/* ══════════════════════════════════════════════════════════════════
+   ATELIER — banco da lavoro del lettore, dove personalizzare la
+   propria esperienza. A differenza della Vetrina (bacheca da museo,
+   legno scuro e vetro) qui il legno è chiaro, illuminato dall'alto,
+   con gli "attrezzi" della personalizzazione posati sopra come su un
+   vero tavolo da artigiano. Pensato a STAZIONI: ogni funzionalità
+   futura (Sigillo, Inchiostro, Nastro del Passaporto, Erbario,
+   Frontespizio...) è semplicemente una nuova card in questa griglia
+   (vedi ATELIER_STAZIONI in JS), nessuna ristrutturazione necessaria.
+   ══════════════════════════════════════════════════════════════════ */
+.atelier-subview{display:none}
+.atelier-subview.active{display:block}
+
+.atelier-bench{
+  position:relative;overflow:hidden;
+  background:
+    repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0,rgba(0,0,0,.05) 2px,transparent 2px,transparent 64px),
+    linear-gradient(155deg,#caa06a,#8a6a3e 70%);
+  border:1px solid rgba(201,162,39,.3);border-radius:4px;
+  padding:44px 38px 38px;
+}
+.atelier-bench::before{ /* luce calda dall'alto, come una lampada da lavoro */
+  content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at 50% -10%,rgba(255,240,200,.22),transparent 62%);
+}
+.atelier-bench-head{position:relative;z-index:2;text-align:center;margin-bottom:8px}
+.atelier-bench-head .eyebrow{justify-content:center;color:#5a3410}
+.atelier-bench-head .eyebrow::before{background:#5a3410}
+.atelier-bench-head h3{font-family:var(--serif);font-style:italic;color:#3d2410;font-size:1.4rem;margin-top:6px}
+.atelier-bench-head p{color:#5a3410;font-size:.85rem;max-width:480px;margin:10px auto 0;line-height:1.6;opacity:.85}
+@media(max-width:640px){.atelier-bench{padding:32px 20px 28px}}
+
+.atelier-stations{position:relative;z-index:2;display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:38px}
+@media(max-width:900px){.atelier-stations{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.atelier-stations{grid-template-columns:1fr}}
+
+.atelier-station{
+  --r:0deg;position:relative;transform:rotate(var(--r));transition:transform .2s ease,box-shadow .2s;
+  background:linear-gradient(160deg,#fbf4e2,#efe3c4);
+  border:1px solid rgba(90,52,16,.25);border-radius:3px;
+  padding:26px 20px 22px;text-align:center;cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,.28),inset 0 1px 1px rgba(255,255,255,.5);
+}
+.atelier-station:hover{transform:rotate(0deg);box-shadow:0 12px 24px rgba(0,0,0,.34),inset 0 1px 1px rgba(255,255,255,.5)}
+.atelier-station.locked{cursor:default;opacity:.68;filter:grayscale(.3)}
+.atelier-station-icon{font-size:2rem;margin-bottom:12px}
+.atelier-station-title{font-family:var(--serif);font-size:1.06rem;color:#3d2410}
+.atelier-station-desc{font-size:.76rem;color:#6b5636;margin-top:6px;line-height:1.5;min-height:34px}
+.atelier-station-preview{
+  margin-top:14px;display:inline-flex;align-items:center;justify-content:center;
+  width:52px;height:52px;border-radius:50%;font-size:1.35rem;
+  border:2px solid rgba(90,52,16,.3);background:rgba(255,255,255,.35);
+}
+.atelier-station-soon{
+  display:inline-block;margin-top:12px;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;
+  color:#8a5323;border:1px dashed rgba(90,52,16,.4);padding:4px 10px;border-radius:20px;
+}
+
+/* ── vista editor di una singola stazione: anteprima fissa + galleria.
+   Riusata da OGNI stazione futura: cambia solo cosa disegna dentro
+   .atelier-preview-panel, non la struttura del layout. ── */
+.atelier-editor{display:grid;grid-template-columns:260px 1fr;gap:36px;align-items:start}
+@media(max-width:780px){.atelier-editor{grid-template-columns:1fr}}
+.atelier-editor-back{
+  background:none;border:none;color:var(--ink-2);font-size:.84rem;font-weight:600;
+  display:inline-flex;align-items:center;gap:6px;margin-bottom:24px;transition:color .15s;
+}
+.atelier-editor-back:hover{color:var(--gold-2)}
+.atelier-preview-panel{
+  position:sticky;top:100px;border:1px solid var(--line);background:var(--gold-wash);
+  padding:30px 24px;text-align:center;
+}
+.atelier-preview-label{font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-top:18px}
+.atelier-gallery-head{font-size:.78rem;color:var(--ink-3);letter-spacing:.06em;text-transform:uppercase;margin:2px 0 16px}
+
+/* ── Ex Libris: il timbro/sigillo, medaglione di ceralacca ── */
+.exlibris-seal{
+  width:132px;height:132px;border-radius:50%;margin:0 auto;position:relative;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 6px 16px rgba(0,0,0,.4),inset 0 -6px 10px rgba(0,0,0,.3),inset 0 4px 6px rgba(255,255,255,.25);
+}
+.exlibris-seal-simbolo{font-size:2.6rem;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.exlibris-symbol-grid,.exlibris-color-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:26px}
+@media(max-width:480px){.exlibris-symbol-grid,.exlibris-color-grid{grid-template-columns:repeat(4,1fr)}}
+.exlibris-opt{
+  aspect-ratio:1;border-radius:50%;border:2px solid var(--line-strong);background:var(--bg-2);
+  display:flex;align-items:center;justify-content:center;font-size:1.2rem;transition:border-color .15s,transform .15s;
+  position:relative;
+}
+.exlibris-opt:hover:not(:disabled){transform:translateY(-2px);border-color:var(--gold)}
+.exlibris-opt.selected{border-color:var(--gold);box-shadow:0 0 0 3px rgba(201,162,39,.25)}
+.exlibris-opt:disabled{opacity:.35;cursor:default}
+.exlibris-opt-lock{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:.85rem;background:rgba(0,0,0,.5);border-radius:50%}
+.exlibris-font-list{display:flex;flex-direction:column;gap:10px;margin-bottom:26px}
+.exlibris-font-option{
+  text-align:left;padding:14px 18px;border:1px solid var(--line-strong);background:var(--bg-2);color:var(--ink);
+  border-radius:var(--radius);transition:border-color .15s;font-size:1.3rem;
+}
+.exlibris-font-option:hover{border-color:var(--gold)}
+.exlibris-font-option.selected{border-color:var(--gold);background:var(--gold-wash)}
+
+/* ── Segnalibri: galleria a nastri, stessa logica fisica dei
+   distintivi della Vetrina ma sagomati come nastri di stoffa ── */
+.segnalibro-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px 14px}
+@media(max-width:720px){.segnalibro-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:480px){.segnalibro-grid{grid-template-columns:repeat(2,1fr)}}
+.segnalibro-item{display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;background:none;border:none}
+.segnalibro-item:disabled{cursor:default}
+.segnalibro-ribbon{
+  width:34px;height:88px;position:relative;border-radius:3px 3px 0 0;
+  clip-path:polygon(0 0,100% 0,100% 82%,50% 100%,0 82%);
+  box-shadow:0 4px 10px rgba(0,0,0,.35);margin-bottom:10px;transition:transform .15s;
+}
+.segnalibro-item:hover:not(:disabled) .segnalibro-ribbon{transform:translateY(-3px)}
+.segnalibro-item.selected .segnalibro-ribbon{box-shadow:0 0 0 3px rgba(201,162,39,.4),0 4px 10px rgba(0,0,0,.35)}
+.segnalibro-item.locked .segnalibro-ribbon{background:linear-gradient(155deg,#4a4436,#2a2620)!important;opacity:.6}
+.segnalibro-name{font-size:.76rem;color:var(--ink);font-family:var(--serif)}
+.segnalibro-item.locked .segnalibro-name{color:var(--ink-3)}
+.segnalibro-hint{font-size:.64rem;color:var(--ink-3);font-style:italic;margin-top:3px;max-width:88px;line-height:1.35}
+
+/* ── il segnalibro attivo, visibile sulla barra "in lettura" della
+   Home: un piccolo triangolo di nastro che cavalca il riempimento
+   invece del semplice bordo dorato piatto. ── */
+.progress-row{position:relative}
+.segnalibro-marker{
+  position:absolute;top:-11px;width:10px;height:16px;transform:translateX(-50%);
+  clip-path:polygon(0 0,100% 0,100% 70%,50% 100%,0 70%);
+  box-shadow:0 2px 4px rgba(0,0,0,.4);transition:left .5s cubic-bezier(.16,1,.3,1);
+}
+
+/* ── mini-timbro Ex Libris, usato accanto al nome nel Profilo ── */
+.exlibris-mini{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:28px;height:28px;border-radius:50%;font-size:.85rem;margin-left:8px;vertical-align:middle;
+  box-shadow:0 2px 5px rgba(0,0,0,.35);
+}
 /* ══════════════════════════════════════════════════════════════════
    TRAGUARDI — steli di marmo incise nel muro del tempio. A differenza
    della Vetrina (l'oggetto posseduto, la medaglia in bacheca), qui il
@@ -1525,6 +1662,7 @@ body.splash-lock{overflow:hidden}
     <a href="#" data-nav="alexandria">Alexandria</a>
     <a href="#" data-nav="tabellarium">Tabellarium</a>
     <a href="#" data-nav="scriptorium">Scriptorium</a>
+    <a href="#" data-nav="atelier">Atelier</a>
     <a href="#" data-nav="agora">Agorà</a>
     <a href="#" data-nav="pantheon">Pantheon</a>
     <a href="#" data-nav="profilo">Profilo</a>
@@ -1549,6 +1687,10 @@ body.splash-lock{overflow:hidden}
   <a href="#" class="bottom-nav-item" data-nav="scriptorium">
     <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M6 3h12v18l-6-4-6 4V3Z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
     Scriptorium
+  </a>
+  <a href="#" class="bottom-nav-item" data-nav="atelier">
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M14.5 3.5 20.5 9.5M4 20l6.5-6.5M9 9l6-6 4 4-6 6-4-4Z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    Atelier
   </a>
   <a href="#" class="bottom-nav-item" data-nav="pantheon">
     <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M3 9.5 12 4l9 5.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 9.5v9.5M8 9.5v9.5M12 9.5v9.5M16 9.5v9.5M19.5 9.5v9.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M3 19h18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -1876,6 +2018,66 @@ body.splash-lock{overflow:hidden}
     </div>
   </section>
 
+  <!-- ═══════════════ ATELIER ═══════════════ -->
+  <section class="page" id="page-atelier">
+    <div class="page-header">
+      <div class="wrap">
+        <p class="eyebrow">Il tuo angolo di personalizzazione</p>
+        <h1>Atelier</h1>
+        <p>Il banco da lavoro del lettore: qui dai forma alla tua identità nella Biblioteca — un timbro tutto tuo, i segnalibri che accompagnano le tue letture, e molto altro in arrivo.</p>
+      </div>
+    </div>
+    <div class="wrap section">
+      <div class="guest-note" id="atelierGuestNote" style="display:none">
+        <span>🔒</span>
+        <span>Le personalizzazioni si salvano solo con un account. <a href="#" id="atelierLoginLink">Accedi</a> per non perderle.</span>
+      </div>
+
+      <div class="atelier-subview active" id="atelierViewBanco">
+        <div class="atelier-bench">
+          <div class="atelier-bench-head">
+            <p class="eyebrow">Bottega del Lettore</p>
+            <h3>Cosa vuoi personalizzare oggi?</h3>
+            <p>Ogni stazione del banco è un pezzo della tua identità di lettore. Toccane una per iniziare.</p>
+          </div>
+          <div class="atelier-stations" id="atelierStations"><!-- popolato da JS --></div>
+        </div>
+      </div>
+
+      <div class="atelier-subview" id="atelierViewExlibris">
+        <button class="atelier-editor-back" id="atelierExlibrisBack">← Torna al banco</button>
+        <div class="atelier-editor">
+          <div class="atelier-preview-panel">
+            <div class="exlibris-seal" id="exlibrisPreviewSeal"></div>
+            <div class="atelier-preview-label">Il tuo Ex Libris</div>
+          </div>
+          <div>
+            <div class="atelier-gallery-head">Simbolo</div>
+            <div class="exlibris-symbol-grid" id="exlibrisSymbolGrid"></div>
+            <div class="atelier-gallery-head">Ceralacca</div>
+            <div class="exlibris-color-grid" id="exlibrisColorGrid"></div>
+            <div class="atelier-gallery-head">Font della firma</div>
+            <div class="exlibris-font-list" id="exlibrisFontList"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="atelier-subview" id="atelierViewSegnalibro">
+        <button class="atelier-editor-back" id="atelierSegnalibroBack">← Torna al banco</button>
+        <div class="atelier-editor">
+          <div class="atelier-preview-panel">
+            <div id="segnalibroPreviewIcon" style="display:flex;justify-content:center"></div>
+            <div class="atelier-preview-label" id="segnalibroPreviewName">Nessun segnalibro attivo</div>
+          </div>
+          <div>
+            <div class="atelier-gallery-head">La tua collezione</div>
+            <div class="segnalibro-grid" id="segnalibroGrid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ═══════════════ TABELLARIUM ═══════════════ -->
   <section class="page" id="page-tabellarium">
     <div class="page-header">
@@ -1940,7 +2142,7 @@ body.splash-lock{overflow:hidden}
           <p class="eyebrow">La persona</p>
           <h2>Tommaso Faroni</h2>
           <!-- TODO: sostituire con la vera presentazione -->
-          <p>Biblioteca Aeterna nasce da un'ossessione tutt'altro che originale: quella per i libri che resistono al tempo. Sono uno sviluppatore con la passione per i grandi classici; a un certo punto mi sono reso conto che tenere traccia delle mie letture su fogli sparsi o app generiche non rendeva giustizia a quello che provo quando finisco un romanzo che aspetta da secoli di essere letto. Volevo uno spazio che trattasse un classico non come un compito scolastico (Manzoni ti sto pensando), ma come un piccolo rito: un timbro sul passaporto, una stele-traguardo nel Pantheon, una pagina di diario. Questo progetto è ancora in costruzione, proprio come la mia libreria personale, ma cresce un capitolo alla volta.</p>
+          <p>Sono un ragazzo con la passione per i grandi classici; a un certo punto mi sono reso conto che tenere traccia delle mie letture su fogli sparsi o app generiche non rendeva giustizia a quello che provo quando finisco un romanzo che volevo leggere da tanto. Desideravo uno spazio che trattasse un classico non come un compito scolastico (Manzoni ti sto pensando), ma come qualcosa di più. Così è nata l'idea che ha portato allo sviluppo di Biblioteca Aeterna, dove l'intento è estendere l'esperienza di lettura: un timbro sul passaporto, una cartolina "spedita" dall'autore, un traguardo nel Pantheon, una pagina di diario. In questo modo, ci si diverte e si può acquisire più facilmente ciò che si è letto. Questo progetto continuerà a essere sviluppato nel tempo.</p>
         </div>
         <div class="about-block">
           <p class="eyebrow">Serve una mano?</p>
@@ -2306,10 +2508,12 @@ function getUser(){return currentUser;}
 async function checkAuth(){
   try{
     const d=await apiFetch('/api/auth/me');
-    currentUser=d.autenticato?{nome:d.nome,nickname:d.nickname||d.nome,email:d.email,obiettivo_annuale:d.obiettivo_annuale}:null;
+    currentUser=d.autenticato?{nome:d.nome,nickname:d.nickname||d.nome,email:d.email,obiettivo_annuale:d.obiettivo_annuale,
+      exlibris_simbolo:d.exlibris_simbolo,exlibris_font:d.exlibris_font,exlibris_stemma:d.exlibris_stemma,segnalibro_attivo:d.segnalibro_attivo}:null;
   }catch{
     currentUser=null;
   }
+  loadAtelierProfilo();
   renderNavUser();renderCta();
 }
 
@@ -2505,7 +2709,7 @@ window.addEventListener('resize',()=>{if(window.innerWidth>940)closeMobileMenu()
    ══════════════════════════════════════════════════════════════════ */
 const STUBS={};
 /* Pagine vere (non stub): id di navigazione → id della sezione nel DOM. */
-const REAL_PAGES={home:'page-home',pantheon:'page-pantheon',alexandria:'page-alexandria',profilo:'page-profilo',tabellarium:'page-tabellarium',scriptorium:'page-scriptorium',agora:'page-agora',about:'page-about'};
+const REAL_PAGES={home:'page-home',pantheon:'page-pantheon',alexandria:'page-alexandria',profilo:'page-profilo',tabellarium:'page-tabellarium',scriptorium:'page-scriptorium',agora:'page-agora',about:'page-about',atelier:'page-atelier'};
 function navigate(id){
   closeMobileMenu();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -2517,6 +2721,7 @@ function navigate(id){
     if(id==='tabellarium')renderTabellarium();
     if(id==='scriptorium')renderScriptorium();
     if(id==='agora')renderAgora();
+    if(id==='atelier')renderAtelier();
   }else{
     const s=STUBS[id]||{title:'In costruzione',desc:'Questa sezione arriverà presto.'};
     document.getElementById('stubTitle').textContent=s.title;
@@ -2599,7 +2804,9 @@ document.getElementById('authSubmit').addEventListener('click',async()=>{
       ?{email,password,nome:document.getElementById('authNome').value.trim(),nickname:document.getElementById('authNickname').value.trim()}
       :{email,password};
     const d=await apiFetch(isReg?'/api/auth/registra':'/api/auth/login',{method:'POST',body:JSON.stringify(body)});
-    currentUser={nome:d.nome,nickname:d.nickname||d.nome,email:d.email,obiettivo_annuale:d.obiettivo_annuale};
+    currentUser={nome:d.nome,nickname:d.nickname||d.nome,email:d.email,obiettivo_annuale:d.obiettivo_annuale,
+      exlibris_simbolo:d.exlibris_simbolo,exlibris_font:d.exlibris_font,exlibris_stemma:d.exlibris_stemma,segnalibro_attivo:d.segnalibro_attivo};
+    loadAtelierProfilo();
     renderNavUser();renderCta();
     await loadUserData();
     await loadEconomia();
@@ -3778,7 +3985,11 @@ function renderReadingHero(){
       <div class="reading-card-title">${escapeHtml(libro.titolo)}</div>
       ${libro.autore?`<div class="reading-card-author">${escapeHtml(libro.autore)}</div>`:''}
       <div class="progress-row" style="margin-top:16px;max-width:320px">
-        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:${pct}%"></div>
+          ${(()=>{const sb=SEGNALIBRI.find(s=>s.id===atelierProfilo.segnalibro_attivo);
+            return sb?`<span class="segnalibro-marker" style="left:${pct}%;background:${sb.colore}"></span>`:'';})()}
+        </div>
         <span class="progress-label">${sessioni} ${sessioni===1?'sessione':'sessioni'}</span>
       </div>
     </div>
@@ -4135,6 +4346,19 @@ function renderProfilo(){
   document.getElementById('profiloNome').textContent=u?u.nome.split(' ')[0]:'Ospite';
   document.getElementById('profiloGuestNote').style.display=u?'none':'flex';
   document.getElementById('btnLogoutProfilo').style.display=u?'inline-flex':'none';
+
+  const nomeEl=document.getElementById('profiloNome');
+  const simEx=EXLIBRIS_SIMBOLI.find(s=>s.id===atelierProfilo.exlibris_simbolo);
+  const colEx=EXLIBRIS_COLORI.find(c=>c.id===atelierProfilo.exlibris_stemma);
+  const miniTimbroEsistente=nomeEl.parentElement.querySelector('.exlibris-mini');
+  if(miniTimbroEsistente)miniTimbroEsistente.remove();
+  if(simEx){
+    const span=document.createElement('span');
+    span.className='exlibris-mini';
+    span.style.background=colEx?colEx.hex:'#c9a227';
+    span.textContent=simEx.icona;
+    nomeEl.after(span);
+  }
 
   const accountCard=document.getElementById('accountCard');
   if(accountCard){
@@ -4721,6 +4945,213 @@ document.getElementById('scriptoriumSubmit').addEventListener('click',async()=>{
   }
 });
 document.getElementById('scriptoriumLoginLink')?.addEventListener('click',e=>{e.preventDefault();openAuth('login');});
+
+/* ══════════════════════════════════════════════════════════════════
+   ATELIER — banco da lavoro del lettore. Le prime due stazioni sono
+   Ex Libris e Segnalibri d'Epoca; le prossime (Sigillo, Inchiostro,
+   Nastro del Passaporto, Erbario, Frontespizio...) si aggiungono come
+   nuove voci in ATELIER_STAZIONI, senza toccare il resto del motore.
+   ══════════════════════════════════════════════════════════════════ */
+const EXLIBRIS_SIMBOLI=[
+  {id:'piuma',icona:'🖋️',nome:'Piuma',sblocco:null},
+  {id:'gufo',icona:'🦉',nome:'Gufo',sblocco:null},
+  {id:'candela',icona:'🕯️',nome:'Candela',sblocco:null},
+  {id:'chiave',icona:'🗝️',nome:'Chiave',sblocco:null},
+  {id:'libro',icona:'📖',nome:'Libro Aperto',sblocco:null},
+  {id:'stella',icona:'⭐',nome:'Stella',sblocco:{achId:'fiamma-del-lettore'}},
+  {id:'compasso',icona:'🧭',nome:'Compasso',sblocco:{achId:'cartografo-dei-desideri'}},
+  {id:'clessidra',icona:'⏳',nome:'Clessidra',sblocco:{achId:'filo-del-tempo'}},
+  {id:'sigillo',icona:'📜',nome:'Sigillo',sblocco:{achId:'prima-iscrizione'}},
+  {id:'globo',icona:'🌐',nome:'Globo',sblocco:{achId:'pantheon-dei-nomi'}},
+  {id:'scudo',icona:'🛡️',nome:'Scudo',sblocco:{achId:'guardiano-del-pantheon'}},
+  {id:'corona',icona:'👑',nome:'Corona',sblocco:{achId:'immortale'}},
+];
+const EXLIBRIS_COLORI=[
+  {id:'rosso',nome:'Rosso classico',hex:'#a83a34'},
+  {id:'oro',nome:'Oro antico',hex:'#c9a227'},
+  {id:'blu',nome:'Blu notte',hex:'#28425f'},
+  {id:'verde',nome:'Verde bosco',hex:'#3f5a3a'},
+  {id:'viola',nome:'Ametista',hex:'#5a3a6e'},
+  {id:'nero',nome:'Nero seppia',hex:'#2c2013'},
+];
+const EXLIBRIS_FONT=[
+  {id:'playfair',nome:'Playfair — elegante',css:"'Playfair Display',serif"},
+  {id:'alexbrush',nome:'Alex Brush — corsivo',css:"'Alex Brush',cursive"},
+  {id:'caveat',nome:'Caveat — a mano',css:"'Caveat',cursive"},
+];
+const SEGNALIBRI=[
+  {id:'nastro-rosso',nome:'Nastro di Raso',colore:'#a83a34',sblocco:null},
+  {id:'nastro-oro',nome:'Filo Dorato',colore:'#c9a227',sblocco:{achId:'prima-pagina'}},
+  {id:'cordoncino-verde',nome:'Cordoncino Verde',colore:'#3f5a3a',sblocco:{achId:'giano-bifronte'}},
+  {id:'piuma-pavone',nome:'Piuma di Pavone',colore:'#28667a',sblocco:{achId:'politeista-delle-lettere'}},
+  {id:'pizzo-antico',nome:'Pizzo Antico',colore:'#8a7f68',sblocco:{achId:'oracolo-dei-classici'}},
+  {id:'nastro-viola',nome:'Nastro Imperiale',colore:'#5a3a6e',sblocco:{achId:'custode-dei-classici'}},
+  {id:'filo-argento',nome:'Filo d\u2019Argento',colore:'#aab2ba',sblocco:{achId:'scriba-del-tempio'}},
+  {id:'nastro-platino',nome:'Nastro Eterno',colore:'#7fa8b8',sblocco:{achId:'immortale'}},
+];
+
+/* Le stazioni sul banco: aggiungere una nuova funzionalità in futuro
+   = aggiungere una voce qui (con presto:true finché non è pronta). */
+const ATELIER_STAZIONI=[
+  {id:'exlibris',icona:'🕯️',titolo:'Ex Libris',desc:'Il tuo timbro personale: simbolo, ceralacca e firma.'},
+  {id:'segnalibro',icona:'🎀',titolo:'Segnalibri d\u2019Epoca',desc:'Scegli il nastro che accompagna le tue letture in corso.'},
+  {id:'sigillo',icona:'📮',titolo:'Sigillo di Ceralacca',desc:'Il sigillo che chiude le tue note più importanti.',presto:true},
+  {id:'inchiostro',icona:'🖊️',titolo:'L\u2019Inchiostro Prescelto',desc:'Il colore con cui scrivi nello Scriptorium.',presto:true},
+  {id:'frontespizio',icona:'📰',titolo:'Frontespizio',desc:'Un motto personale in cima al tuo profilo.',presto:true},
+];
+
+let atelierProfilo={exlibris_simbolo:null,exlibris_font:null,exlibris_stemma:null,segnalibro_attivo:null};
+const LS_ATELIER='aeterna_atelier';
+function readLocalAtelier(){try{return JSON.parse(localStorage.getItem(LS_ATELIER))||{};}catch{return{};}}
+function writeLocalAtelier(v){localStorage.setItem(LS_ATELIER,JSON.stringify(v));}
+function loadAtelierProfilo(){
+  if(currentUser){
+    atelierProfilo={
+      exlibris_simbolo:currentUser.exlibris_simbolo||null,
+      exlibris_font:currentUser.exlibris_font||null,
+      exlibris_stemma:currentUser.exlibris_stemma||null,
+      segnalibro_attivo:currentUser.segnalibro_attivo||null,
+    };
+  }else{
+    atelierProfilo=Object.assign({exlibris_simbolo:null,exlibris_font:null,exlibris_stemma:null,segnalibro_attivo:null},readLocalAtelier());
+  }
+}
+function achievementSbloccato(achId){
+  const a=ACHIEVEMENTS.find(x=>x.id===achId);
+  if(!a)return false;
+  return a.current(getLibrary())>=a.target;
+}
+
+let atelierView='banco';
+function renderAtelier(){
+  const guestNote=document.getElementById('atelierGuestNote');
+  if(guestNote)guestNote.style.display=getUser()?'none':'flex';
+  document.querySelectorAll('.atelier-subview').forEach(v=>v.classList.remove('active'));
+  const map={banco:'atelierViewBanco',exlibris:'atelierViewExlibris',segnalibro:'atelierViewSegnalibro'};
+  document.getElementById(map[atelierView]||'atelierViewBanco')?.classList.add('active');
+  if(atelierView==='banco')renderAtelierBanco();
+  if(atelierView==='exlibris')renderExlibrisEditor();
+  if(atelierView==='segnalibro')renderSegnalibroEditor();
+}
+
+function renderAtelierBanco(){
+  const grid=document.getElementById('atelierStations');
+  if(!grid)return;
+  grid.innerHTML=ATELIER_STAZIONI.map(s=>{
+    const rot=(stampAngle(s.id)/3).toFixed(2);
+    if(s.presto){
+      return `
+      <div class="atelier-station locked" style="--r:${rot}deg">
+        <div class="atelier-station-icon">${s.icona}</div>
+        <div class="atelier-station-title">${s.titolo}</div>
+        <div class="atelier-station-desc">${s.desc}</div>
+        <span class="atelier-station-soon">Prossimamente</span>
+      </div>`;
+    }
+    let anteprima='✦';
+    if(s.id==='exlibris'){
+      const sim=EXLIBRIS_SIMBOLI.find(x=>x.id===atelierProfilo.exlibris_simbolo);
+      anteprima=sim?sim.icona:'✦';
+    }else if(s.id==='segnalibro'){
+      anteprima=SEGNALIBRI.find(x=>x.id===atelierProfilo.segnalibro_attivo)?'🎀':'✦';
+    }
+    return `
+    <div class="atelier-station" data-stazione="${s.id}" style="--r:${rot}deg">
+      <div class="atelier-station-icon">${s.icona}</div>
+      <div class="atelier-station-title">${s.titolo}</div>
+      <div class="atelier-station-desc">${s.desc}</div>
+      <div class="atelier-station-preview">${anteprima}</div>
+    </div>`;
+  }).join('');
+}
+document.getElementById('atelierStations')?.addEventListener('click',e=>{
+  const card=e.target.closest('[data-stazione]');
+  if(!card)return;
+  atelierView=card.dataset.stazione;
+  renderAtelier();
+});
+document.getElementById('atelierExlibrisBack')?.addEventListener('click',()=>{atelierView='banco';renderAtelier();});
+document.getElementById('atelierSegnalibroBack')?.addEventListener('click',()=>{atelierView='banco';renderAtelier();});
+document.getElementById('atelierLoginLink')?.addEventListener('click',e=>{e.preventDefault();openAuth('login');});
+
+/* ── Ex Libris ── */
+function renderExlibrisEditor(){
+  const colore=EXLIBRIS_COLORI.find(c=>c.id===atelierProfilo.exlibris_stemma)||EXLIBRIS_COLORI[0];
+  const font=EXLIBRIS_FONT.find(f=>f.id===atelierProfilo.exlibris_font)||EXLIBRIS_FONT[0];
+  const sim=EXLIBRIS_SIMBOLI.find(s=>s.id===atelierProfilo.exlibris_simbolo);
+  const seal=document.getElementById('exlibrisPreviewSeal');
+  seal.style.background=`radial-gradient(circle at 35% 30%,${colore.hex}dd,${colore.hex})`;
+  seal.innerHTML=`<span class="exlibris-seal-simbolo" style="font-family:${font.css}">${sim?sim.icona:'✦'}</span>`;
+
+  document.getElementById('exlibrisSymbolGrid').innerHTML=EXLIBRIS_SIMBOLI.map(s=>{
+    const locked=s.sblocco&&!achievementSbloccato(s.sblocco.achId);
+    const selected=atelierProfilo.exlibris_simbolo===s.id;
+    return `<button class="exlibris-opt${selected?' selected':''}" data-simbolo="${s.id}" title="${s.nome}"${locked?' disabled':''}>${locked?'<span class="exlibris-opt-lock">🔒</span>':s.icona}</button>`;
+  }).join('');
+  document.getElementById('exlibrisColorGrid').innerHTML=EXLIBRIS_COLORI.map(c=>{
+    const selected=atelierProfilo.exlibris_stemma===c.id;
+    return `<button class="exlibris-opt${selected?' selected':''}" data-colore="${c.id}" title="${c.nome}" style="background:${c.hex}"></button>`;
+  }).join('');
+  document.getElementById('exlibrisFontList').innerHTML=EXLIBRIS_FONT.map(f=>{
+    const selected=atelierProfilo.exlibris_font===f.id;
+    return `<button class="exlibris-font-option${selected?' selected':''}" data-font="${f.id}" style="font-family:${f.css}">${f.nome}</button>`;
+  }).join('');
+}
+document.getElementById('exlibrisSymbolGrid')?.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-simbolo]');
+  if(!btn||btn.disabled)return;
+  aggiornaAtelier({exlibris_simbolo:btn.dataset.simbolo});
+});
+document.getElementById('exlibrisColorGrid')?.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-colore]');
+  if(!btn)return;
+  aggiornaAtelier({exlibris_stemma:btn.dataset.colore});
+});
+document.getElementById('exlibrisFontList')?.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-font]');
+  if(!btn)return;
+  aggiornaAtelier({exlibris_font:btn.dataset.font});
+});
+
+/* ── Segnalibri ── */
+function renderSegnalibroEditor(){
+  const attivo=SEGNALIBRI.find(s=>s.id===atelierProfilo.segnalibro_attivo);
+  document.getElementById('segnalibroPreviewIcon').innerHTML=`<div class="segnalibro-ribbon" style="background:${attivo?attivo.colore:'#4a4436'}"></div>`;
+  document.getElementById('segnalibroPreviewName').textContent=attivo?attivo.nome:'Nessun segnalibro attivo';
+  document.getElementById('segnalibroGrid').innerHTML=SEGNALIBRI.map(s=>{
+    const locked=s.sblocco&&!achievementSbloccato(s.sblocco.achId);
+    const selected=atelierProfilo.segnalibro_attivo===s.id;
+    const achTitolo=s.sblocco?ACHIEVEMENTS.find(a=>a.id===s.sblocco.achId)?.title:'';
+    return `
+    <button class="segnalibro-item${selected?' selected':''}${locked?' locked':''}" data-segnalibro="${s.id}"${locked?' disabled':''}>
+      <div class="segnalibro-ribbon" style="background:${s.colore}"></div>
+      <div class="segnalibro-name">${s.nome}</div>
+      ${locked?`<div class="segnalibro-hint">Sblocca: ${achTitolo}</div>`:''}
+    </button>`;
+  }).join('');
+}
+document.getElementById('segnalibroGrid')?.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-segnalibro]');
+  if(!btn||btn.disabled)return;
+  const nuovo=atelierProfilo.segnalibro_attivo===btn.dataset.segnalibro?null:btn.dataset.segnalibro;
+  aggiornaAtelier({segnalibro_attivo:nuovo});
+});
+
+/* ── Salvataggio: ottimistico come setBookStatus/setGoal — aggiorna
+   subito profilo+UI, poi persiste in background (API se loggati,
+   localStorage per gli ospiti). ── */
+function aggiornaAtelier(patch){
+  Object.assign(atelierProfilo,patch);
+  renderAtelier();
+  if(typeof renderReadingHero==='function')renderReadingHero();
+  if(typeof renderProfilo==='function')renderProfilo();
+  if(currentUser){
+    Object.assign(currentUser,patch);
+    apiFetch('/api/auth/atelier',{method:'PUT',body:JSON.stringify(atelierProfilo)}).catch(err=>console.error('aggiornaAtelier',err));
+  }else{
+    writeLocalAtelier(atelierProfilo);
+  }
+}
 
 /* ══════════════════════════════════════════════════════════════════
    TABELLARIUM — Passaporto Letterario + Epistolarium.
@@ -5905,6 +6336,7 @@ function loadGuestData(){
   libreriaCache=readLocalLibrary();
   goalValue=readLocalGoal();
   scriptoriumCache=readLocalScriptorium();
+  loadAtelierProfilo();
 }
 
 async function loadUserData(){
