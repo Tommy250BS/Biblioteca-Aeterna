@@ -4273,7 +4273,6 @@ async function searchAlexandria(q){
   const d=await r.json();
 
   const qNorm=normalizzaTesto(q);
-  const qNorm=normalizzaTesto(q);
   const puliti=(d.docs||[]).filter(doc=>!ALEX_ESCLUSI_REGEX.test(doc.title||''));
   let candidati=puliti.filter(doc=>alexRilevanza(doc,qNorm));
   let usaOrdineOriginale=false;
@@ -5388,13 +5387,7 @@ const EPISTOLARIUM_CARDE=[
    luogo:'Buenos Aires, Argentina',francobollo:'🪞',tono:'iberico',icona:'🌀',
    retro:'Borges perse quasi del tutto la vista negli ultimi decenni della sua vita, eppure divenne direttore della Biblioteca Nazionale Argentina: definì questa coincidenza "l\u2019ironia di Dio".',
    citazione:'Il paradiso, per me, ha sempre avuto la forma di una biblioteca.'},
-
-  /* ══════════════════════════════════════════════════════════════
-     RISERVA — pronte, ma disattivate. Per attivarne una: spostala
-     fuori da questo blocco di commento (sopra questa riga), sopra
-     la chiusura dell'array. Nessuna modifica al testo necessaria.
-
-  {id:'tolstoj',autore:'Lev Tolstoj',libroChiave:'war-and-peace',
+     {id:'tolstoj',autore:'Lev Tolstoj',libroChiave:'war-and-peace',
    luogo:'Jasnaja Poljana',francobollo:'🌾',tono:'imperiale',icona:'🌾',
    retro:"Tolstoj riscrisse l'opera per intero più volte a mano; si stima che la sola moglie Sof'ja abbia ricopiato l'intero manoscritto svariate volte.",
    citazione:'Tutto passa e il dolore svanisce.'},
@@ -5450,6 +5443,12 @@ const EPISTOLARIUM_CARDE=[
    luogo:'Dublino, Irlanda',francobollo:'🍀',tono:'vittoriano',icona:'📖',
    retro:'Il romanzo fu bandito per oscenità in Stati Uniti e Regno Unito per oltre un decennio. Oggi, ogni 16 giugno — il giorno in cui è ambientato — si festeggia in tutto il mondo come "Bloomsday".',
    citazione:'Sì disse sì lo voglio Sì.'},
+
+  /* ══════════════════════════════════════════════════════════════
+     RISERVA — pronte, ma disattivate. Per attivarne una: spostala
+     fuori da questo blocco di commento (sopra questa riga), sopra
+     la chiusura dell'array. Nessuna modifica al testo necessaria.
+
   {id:'lispector',autore:'Clarice Lispector',libroChiave:'ora-della-stella',
    luogo:'Rio de Janeiro, Brasile',francobollo:'⭐',tono:'oceanico',icona:'⭐',
    retro:'Questo fu il suo ultimo romanzo, uscito poche settimane prima della morte. Anni prima era sopravvissuta a un incendio quasi fatale nel proprio appartamento, causato da una sigaretta.',
