@@ -4035,9 +4035,6 @@ async function searchAlexandria(q){
   q,limit:'60',
   fields:'key,title,alternative_title,author_name,first_publish_year,cover_i,language,edition_count'
   });
-  const r=await fetch(`https://openlibrary.org/search.json?${params}`,{signal:AbortSignal.timeout(8000)});
-  if(!r.ok)throw new Error('Risposta non valida da Open Library');
-  const d=await r.json();
 
   const qNorm=normalizzaTesto(q);
   const puliti=(d.docs||[]).filter(doc=>!ALEX_ESCLUSI_REGEX.test(doc.title||''));
