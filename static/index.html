@@ -4099,18 +4099,26 @@ async function searchAlexandria(titolo,autore){
   renderAlexResults();
 }
   
-
 function renderAlexResults(){
   const wrap=document.getElementById('alexResultsWrap');
   if(!wrap||!alexLastQuery)return;
   if(!alexResults.length){
-    wrap.innerHTML=`<div class="alex-state">Nessuna opera trovata per «${alexLastQuery}».</div>`;
+    wrap.innerHTML=`
+      <div class="alex-state">
+        Nessuna opera trovata per «${escapeHtml(alexLastQuery)}».
+        <div style="margin-top:14px;font-size:.86rem;line-height:1.7;font-style:normal;color:var(--ink-3)">
+          Prova con:<br>
+          · il <b style="color:var(--ink-2)">titolo originale o inglese</b> (es. «The Trial» invece di «Il processo»)<br>
+          · solo il <b style="color:var(--ink-2)">cognome</b> dell’autore (es. «Kafka»)<br>
+          · una forma più breve del titolo, senza sottotitoli
+        </div>
+      </div>`;
     return;
   }
   const lib=getLibrary();
   wrap.innerHTML=`
     <div class="alex-results-head">
-      <h2>Risultati per «${alexLastQuery}»</h2>
+      <h2>Risultati per «${escapeHtml(alexLastQuery)}»</h2>
       <span>${alexResults.length} opere trovate</span>
     </div>
     <div class="book-grid">${alexResults.map((b,i)=>{
