@@ -4048,6 +4048,23 @@ function alexAutoreOk(doc,tokAutore){
     return tokAutore.every(t=>nn.includes(t));
   });
 }
+const ALEX_FIELDS='key,title,alternative_title,author_name,first_publish_year,cover_i,language,edition_count';
+
+async function alexFetchOL(extraParams){
+  const params=new URLSearchParams({limit:'100',fields:ALEX_FIELDS,...extraParams});
+  const r=await fetch(`https://openlibrary.org/search.json?${params}`,{signal:AbortSignal.timeout(8000)});
+  if(!r.ok)throw new Error('Open Library HTTP '+r.status);
+  const d=await r.json();
+  return d.docs||[];
+}
+
+// Stesso filtro rigoroso per entrambi i tentativi: titolo E autore devono combaciare
+function alexFiltra(docs,tokT,tokA){
+  return docs.filter(doc=>
+    !ALEX_ESCLUSI_REGEX.test(doc.title||'')&&
+    alexTitoloOk(doc,tokT)&&alexAutoreOk(doc,tokA)
+  );
+}
 
 async function searchAlexandria(titolo,autore){
   titolo=(titolo||'').trim();autore=(autore||'').trim();
@@ -4058,20 +4075,19 @@ async function searchAlexandria(titolo,autore){
   }
   alexLastQuery=`${titolo} — ${autore}`;
   wrap.innerHTML=`<div class="alex-state">Ricerca in corso tra i grandi classici…</div>`;
-  try{
-    const params=new URLSearchParams({
-      title:titolo,author:autore,limit:'50',
-      fields:'key,title,alternative_title,author_name,first_publish_year,cover_i,language,edition_count'
-    });
-    const r=await fetch(`https://openlibrary.org/search.json?${params}`,{signal:AbortSignal.timeout(8000)});
-    if(!r.ok)throw new Error('Open Library HTTP '+r.status);
-    const d=await r.json();
 
-    const tokT=tokensDi(titolo),tokA=tokensDi(autore);
-    const validi=(d.docs||[]).filter(doc=>
-      !ALEX_ESCLUSI_REGEX.test(doc.title||'')&&
-      alexTitoloOk(doc,tokT)&&alexAutoreOk(doc,tokA)
-    );
+  const tokT=tokensDi(titolo),tokA=tokensDi(autore);
+  try{
+    // Tentativo 1: titolo + autore come campi separati
+    let validi=alexFiltra(await alexFetchOL({title:titolo,author:autore}),tokT,tokA);
+
+    // Tentativo 2 (solo se il primo non trova nulla): tutte le opere dell'autore,
+    // dalle più diffuse, poi stesso filtro sul titolo. Recupera i casi in cui
+    // il titolo cercato compare solo tra i titoli alternativi/tradotti.
+    if(!validi.length){
+      validi=alexFiltra(await alexFetchOL({author:autore,sort:'editions'}),tokT,tokA);
+    }
+
     const ordinati=filtraPerLinguaPreferita(validi)
       .slice().sort((a,b)=>(b.edition_count||0)-(a.edition_count||0));
     alexResults=alexDedupTitoli(ordinati).slice(0,24).map(normalizeDoc);
