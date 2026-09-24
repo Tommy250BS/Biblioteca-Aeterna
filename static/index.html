@@ -874,6 +874,14 @@ body.splash-lock{overflow:hidden}
 .search-bar input::placeholder{color:var(--ink-3)}
 .search-bar button{background:var(--gold);color:#100d0a;border:none;padding:0 34px;font-weight:700;font-size:.92rem}
 .search-bar button:hover{filter:brightness(1.08)}
+
+.search-bar-2 input{min-width:0}
+.search-bar-2 input+input{border-left:1px solid var(--gold)}
+@media(max-width:640px){
+  .search-bar-2{flex-direction:column}
+  .search-bar-2 input+input{border-left:none;border-top:1px solid var(--gold)}
+  .search-bar-2 button{padding:16px}
+}
 .search-chips{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:26px}
 .chip{
   padding:8px 18px;border:1px solid rgba(255,255,255,.22);border-radius:30px;font-size:.82rem;color:var(--ink-2);
@@ -1726,17 +1734,18 @@ body.splash-lock{overflow:hidden}
         <p class="eyebrow">La grande biblioteca</p>
         <h1>Alexandria</h1>
         <p>Milioni di opere ti attendono. Cerca per titolo nel catalogo universale.</p>
-        <form class="search-bar" id="alexForm">
-          <input type="search" id="alexInput" placeholder="Cerca tra i grandi classici…" autocomplete="off">
+        <form class="search-bar search-bar-2" id="alexForm">
+          <input type="search" id="alexInput" placeholder="Titolo (es. Il processo)" autocomplete="off" required>
+          <input type="search" id="alexAuthorInput" placeholder="Autore (es. Kafka)" autocomplete="off" required>
           <button type="submit">Cerca</button>
         </form>
         <div class="search-chips">
-          <button class="chip" data-q="Delitto e castigo">Delitto e castigo</button>
-          <button class="chip" data-q="Orgoglio e pregiudizio">Orgoglio e pregiudizio</button>
-          <button class="chip" data-q="Odissea">Odissea</button>
-          <button class="chip" data-q="Il processo">Il processo</button>
-          <button class="chip" data-q="Anna Karenina">Anna Karenina</button>
-          <button class="chip" data-q="Il ritratto di Dorian Gray">Il ritratto di Dorian Gray</button>
+          <button class="chip" data-q="Delitto e castigo" data-a="Dostoevskij">Delitto e castigo</button>
+          <button class="chip" data-q="Orgoglio e pregiudizio" data-a="Austen">Orgoglio e pregiudizio</button>
+          <button class="chip" data-q="Odissea" data-a="Omero">Odissea</button>
+          <button class="chip" data-q="Il processo" data-a="Kafka">Il processo</button>
+          <button class="chip" data-q="Anna Karenina" data-a="Tolstoj">Anna Karenina</button>
+          <button class="chip" data-q="Il ritratto di Dorian Gray" data-a="Wilde">Il ritratto di Dorian Gray</button>
         </div>
       </div>
     </div>
@@ -4024,33 +4033,48 @@ function alexDedupTitoli(docs){
   });
 }
 
-async function searchAlexandria(q){
-  q=q.trim();
-  if(!q)return;
-  alexLastQuery=q;
+const ALEX_STOPWORDS=new Set(['il','lo','la','le','i','gli','un','una','di','del','della','dei','e','ed','the','of','a','an','and','der','die','das']);
+function tokensDi(s){return normalizzaTesto(s).split(' ').filter(t=>t&&!ALEX_STOPWORDS.has(t));}
+
+// Tutti i token della query devono comparire nel titolo (o in un titolo alternativo)
+function alexTitoloOk(doc,tokTitolo){
+  const blob=' '+[doc.title,...(doc.alternative_title||[])].map(normalizzaTesto).join(' | ')+' ';
+  return tokTitolo.every(t=>blob.includes(t));
+}
+// Tutti i token dell'autore devono comparire in almeno UN nome autore del documento
+function alexAutoreOk(doc,tokAutore){
+  return (doc.author_name||[]).some(n=>{
+    const nn=' '+normalizzaTesto(n)+' ';
+    return tokAutore.every(t=>nn.includes(t));
+  });
+}
+
+async function searchAlexandria(titolo,autore){
+  titolo=(titolo||'').trim();autore=(autore||'').trim();
   const wrap=document.getElementById('alexResultsWrap');
+  if(!titolo||!autore){
+    wrap.innerHTML=`<div class="alex-state">Inserisci sia il titolo sia l’autore per una ricerca precisa.</div>`;
+    return;
+  }
+  alexLastQuery=`${titolo} — ${autore}`;
   wrap.innerHTML=`<div class="alex-state">Ricerca in corso tra i grandi classici…</div>`;
   try{
-  const params=new URLSearchParams({
-  q,limit:'60',
-  fields:'key,title,alternative_title,author_name,first_publish_year,cover_i,language,edition_count'
-  });
+    const params=new URLSearchParams({
+      title:titolo,author:autore,limit:'50',
+      fields:'key,title,alternative_title,author_name,first_publish_year,cover_i,language,edition_count'
+    });
+    const r=await fetch(`https://openlibrary.org/search.json?${params}`,{signal:AbortSignal.timeout(8000)});
+    if(!r.ok)throw new Error('Open Library HTTP '+r.status);
+    const d=await r.json();
 
-  const r=await fetch(`https://openlibrary.org/search.json?${params}`,{signal:AbortSignal.timeout(8000)});
-  if(!r.ok)throw new Error('Open Library HTTP '+r.status);
-  const d=await r.json();
-
-  const qNorm=normalizzaTesto(q);
-  const puliti=(d.docs||[]).filter(doc=>!ALEX_ESCLUSI_REGEX.test(doc.title||''));
-  let candidati=puliti.filter(doc=>alexRilevanza(doc,qNorm));
-  let usaOrdineOriginale=false;
-  if(!candidati.length){
-  candidati=puliti; // fallback: nessun match sui titoli, fidati della rilevanza di Open Library
-  usaOrdineOriginale=true;
-  }
-  const perLingua=filtraPerLinguaPreferita(candidati);
-  const ordinati=usaOrdineOriginale?perLingua:perLingua.slice().sort((a,b)=>(b.edition_count||0)-(a.edition_count||0));
-  alexResults=alexDedupTitoli(ordinati).slice(0,24).map(normalizeDoc);
+    const tokT=tokensDi(titolo),tokA=tokensDi(autore);
+    const validi=(d.docs||[]).filter(doc=>
+      !ALEX_ESCLUSI_REGEX.test(doc.title||'')&&
+      alexTitoloOk(doc,tokT)&&alexAutoreOk(doc,tokA)
+    );
+    const ordinati=filtraPerLinguaPreferita(validi)
+      .slice().sort((a,b)=>(b.edition_count||0)-(a.edition_count||0));
+    alexResults=alexDedupTitoli(ordinati).slice(0,24).map(normalizeDoc);
   }catch(err){
     console.error('searchAlexandria',err);
     wrap.innerHTML=`<div class="alex-state">⚠ Non sono riuscito a raggiungere il catalogo. Riprova tra poco.</div>`;
@@ -4058,6 +4082,7 @@ async function searchAlexandria(q){
   }
   renderAlexResults();
 }
+  
 
 function renderAlexResults(){
   const wrap=document.getElementById('alexResultsWrap');
@@ -4095,20 +4120,18 @@ function renderAlexResults(){
       </div>`;
     }).join('')}</div>`;
 }
-document.getElementById('alexResultsWrap').addEventListener('click',e=>{
-  const btn=e.target.closest('[data-act]');
-  if(!btn)return;
-  const book=alexResults[parseInt(btn.dataset.idx)];
-  if(book)setBookStatus(book,btn.dataset.act);
-});
 document.getElementById('alexForm').addEventListener('submit',e=>{
   e.preventDefault();
-  searchAlexandria(document.getElementById('alexInput').value);
+  searchAlexandria(
+    document.getElementById('alexInput').value,
+    document.getElementById('alexAuthorInput').value
+  );
 });
 document.querySelectorAll('.chip').forEach(chip=>{
   chip.addEventListener('click',()=>{
     document.getElementById('alexInput').value=chip.dataset.q;
-    searchAlexandria(chip.dataset.q);
+    document.getElementById('alexAuthorInput').value=chip.dataset.a;
+    searchAlexandria(chip.dataset.q,chip.dataset.a);
   });
 });
 
